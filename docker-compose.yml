@@ -1,0 +1,9 @@
+services:
+  ft_bot:
+    image: freqtradeorg/freqtrade:stable
+    volumes:
+      - ./shared_data:/shared_data
+  brain:
+    image: python:3.11
+    volumes:
+      - ./shared_data:/shared_data

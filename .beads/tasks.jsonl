@@ -1,0 +1,17 @@
+{"id": "ROOT", "type": "epic", "title": "TradeMate Root", "desc": "Project Initialization", "status": "closed", "deps": [], "test": "echo 'Root'"}
+
+{"id": "INFRA-01", "type": "task", "title": "Repo Scaffold", "desc": "Initialize Git. Create folders: `freqtrade/`, `brain/`, `shared_data/`. Create `STANDARDS.md` and `PROGRESS.log`.", "status": "closed", "deps": ["ROOT"], "test": "ls -R | grep STANDARDS.md"}
+{"id": "INFRA-02", "type": "task", "title": "Docker Infrastructure", "desc": "Create `docker-compose.yml`. Service `ft_bot` (image: freqtradeorg/freqtrade:stable) and `brain` (python:3.11). Mount `./shared_data` volume to BOTH.", "status": "closed", "deps": ["INFRA-01"], "test": "docker compose config"}
+{"id": "INFRA-03", "type": "task", "title": "Synapse DB", "desc": "Create `shared_data/init_db.py`. Script to create SQLite DB `signals.db` with table `active_signals` (pair, stop_loss, reason).", "status": "closed", "deps": ["INFRA-01"], "test": "python3 shared_data/init_db.py && ls shared_data/signals.db"}
+
+{"id": "BODY-01", "type": "task", "title": "Freqtrade Config", "desc": "Run `freqtrade new-config`. Set `api_server.enabled=true`, `listen_ip_address=0.0.0.0`, `dry_run=true`.", "status": "closed", "deps": ["INFRA-02"], "test": "grep '0.0.0.0' freqtrade/user_data/config.json"}
+{"id": "BODY-02", "type": "task", "title": "Sidecar Strategy", "desc": "Create `freqtrade/user_data/strategies/SidecarStrat.py`. Override `custom_stoploss` method to read `signals.db` for the current pair.", "status": "closed", "deps": ["BODY-01", "INFRA-03"], "test": "ls freqtrade/user_data/strategies/SidecarStrat.py"}
+
+{"id": "BRAIN-01", "type": "task", "title": "Brain Setup", "desc": "Create `brain/Dockerfile` and `requirements.txt` (streamlit, pandas-ta, ccxt, sqlalchemy, requests, plotly).", "status": "closed", "deps": ["INFRA-02"], "test": "cat brain/requirements.txt"}
+{"id": "BRAIN-02", "type": "task", "title": "Data Engine", "desc": "Create `brain/data.py`. Function `fetch_ohlcv(pair)` using CCXT. Returns DataFrame with standardized columns.", "status": "closed", "deps": ["BRAIN-01"], "test": "python -c 'from brain.data import fetch_ohlcv; print(fetch_ohlcv(\"BTC/USDT\").head())'"}
+{"id": "BRAIN-03", "type": "task", "title": "Analysis Logic", "desc": "Create `brain/logic.py`. Function `analyze(df)`. Returns dict: `{'signal': bool, 'reason': str}` based on RSI/EMA.", "status": "closed", "deps": ["BRAIN-02"], "test": "pytest brain/tests/test_logic.py"}
+{"id": "BRAIN-04", "type": "task", "title": "Execution Client", "desc": "Create `brain/execution.py`. Class with two methods: 1. `stage_signal()` (writes to DB). 2. `trigger_buy()` (calls Freqtrade API).", "status": "closed", "deps": ["BRAIN-01", "INFRA-03"], "test": "python -c 'import brain.execution'"}
+
+{"id": "UI-01", "type": "task", "title": "Streamlit Skeleton", "desc": "Create `brain/app.py`. Setup Layout: Sidebar for settings, Main area with 'Scanner' and 'Monitor' tabs.", "status": "closed", "deps": ["BRAIN-01"], "test": "streamlit hello --no-interactive"}
+{"id": "UI-02", "type": "task", "title": "Connect Logic", "desc": "Update `app.py`. Add 'Scan' button. Display results from `logic.analyze()` in a dataframe.", "status": "closed", "deps": ["UI-01", "BRAIN-03"], "test": "grep 'analyze' brain/app.py"}
+{"id": "UI-03", "type": "task", "title": "Connect Execution", "desc": "Update `app.py`. Add 'Trade' button to rows. Link to `execution.trigger_buy()`.", "status": "closed", "deps": ["UI-02", "BRAIN-04"], "test": "grep 'trigger_buy' brain/app.py"}
