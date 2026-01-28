@@ -1,0 +1,72 @@
+version: 1
+project: tradegate-trading-buddy-merge
+owner: Apocaltips
+notes:
+  - Do not modify live Tradegate while 10-hour test runs.
+  - Use isolated workspace for build and test.
+
+beads:
+  - id: B1
+    name: Workspace Setup
+    depends_on: []
+    status: pending
+    tasks:
+      - create isolated build folder
+      - clone required repos
+
+  - id: B2
+    name: Signal Schema + Mapping Spec
+    depends_on: []
+    status: pending
+    tasks:
+      - finalize JSON schema
+      - define USD->USDT mapping table
+
+  - id: B3
+    name: Signal Bus Implementation
+    depends_on: [B2]
+    status: pending
+    tasks:
+      - durable queue with TTL
+      - idempotency handling
+
+  - id: B4
+    name: Tradegate Signal Export Adapter
+    depends_on: [B2]
+    status: pending
+    tasks:
+      - shadow-mode exporter
+      - no changes to live Mac instance
+
+  - id: B5
+    name: Execution Gateway
+    depends_on: [B2, B3]
+    status: pending
+    tasks:
+      - mapping + TTL enforcement
+      - retries + backoff
+
+  - id: B6
+    name: Freqtrade Consumer
+    depends_on: [B3, B5]
+    status: pending
+    tasks:
+      - sidecar strategy reads bus
+      - executes dry-run trades
+
+  - id: B7
+    name: Reporting + Metrics
+    depends_on: [B4, B5, B6]
+    status: pending
+    tasks:
+      - 2-hour report generator
+      - summary metrics
+
+  - id: B8
+    name: Runbook + Safety
+    depends_on: []
+    status: pending
+    tasks:
+      - start/stop commands
+      - health checks
+      - safety notes
