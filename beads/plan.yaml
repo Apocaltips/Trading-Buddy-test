@@ -1,0 +1,108 @@
+version: 1
+project: tradegate-trading-buddy-merge
+owner: Apocaltips
+notes:
+  - Do not modify live Tradegate while the 10-hour Mac run is active.
+  - Build and test on this Windows PC.
+  - Follow STANDARDS.md guardrails.
+
+beads:
+  - id: B1
+    name: Root Refactor + Merge Layout
+    depends_on: []
+    status: pending
+    tasks:
+      - create docs, beads, configs, scripts, reports folders
+      - move merge planning into repo root
+
+  - id: B2
+    name: Guardrails + Schema + Mapping Spec
+    depends_on: [B1]
+    status: pending
+    tasks:
+      - finalize signal schema with required chart_signal object
+      - define USD->USDT mapping table
+      - add schema validator + guardrail constants
+
+  - id: B3
+    name: Strategy Fleet + Rate Budgeter (Shotgun)
+    depends_on: [B2]
+    status: pending
+    tasks:
+      - create configs/strategy_fleet.yaml (many instances)
+      - implement rate-limit budgeter (80 percent cap)
+      - add instance manager to scale based on budget
+
+  - id: B4
+    name: Chart Engine (Chart-First)
+    depends_on: [B2]
+    status: pending
+    tasks:
+      - build chart layer detection (S/R, trendlines, channels, EMA, VWAP, Fib)
+      - build pattern detectors (breakout, pullback, range, divergence, squeeze)
+      - produce chart_signal + confluence score
+
+  - id: B5
+    name: Signal Bus (SQLite)
+    depends_on: [B2]
+    status: pending
+    tasks:
+      - create signal_bus table with TTL + idempotency
+      - implement push/pull/ack APIs
+
+  - id: B6
+    name: Signal Export Adapter (Shadow Mode)
+    depends_on: [B4, B5]
+    status: pending
+    tasks:
+      - emit signals from chart engine into bus
+      - validate schema before write
+
+  - id: B7
+    name: Execution Gateway
+    depends_on: [B2, B5]
+    status: pending
+    tasks:
+      - enforce mapping + TTL
+      - retry with backoff
+      - submit to Freqtrade API
+
+  - id: B8
+    name: Freqtrade Consumer
+    depends_on: [B5, B7]
+    status: pending
+    tasks:
+      - update SidecarStrat to consume bus signals
+      - apply stop_loss from payload
+
+  - id: B9
+    name: Reporting + Journal
+    depends_on: [B6, B7, B8]
+    status: pending
+    tasks:
+      - generate 2-hour report with chart metrics
+      - journal outcomes and confluence scores
+
+  - id: B10
+    name: Guardrail Tests
+    depends_on: [B2, B5, B7, B8]
+    status: pending
+    tasks:
+      - enforce STANDARDS.md constants and names
+      - ensure no direct CCXT trading
+
+  - id: B11
+    name: Runbook + Scheduler
+    depends_on: [B9, B10]
+    status: pending
+    tasks:
+      - add scripts to run plumbing test and 2-hour shotgun test
+      - schedule run to finish by 9:00 AM MST
+
+  - id: B12
+    name: Stress + Comparison Pack
+    depends_on: [B9]
+    status: pending
+    tasks:
+      - stress test rate limits and queue overflow
+      - produce comparison pack vs 10-hour baseline

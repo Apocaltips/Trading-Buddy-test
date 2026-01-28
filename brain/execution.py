@@ -7,8 +7,7 @@ from typing import Any, Dict
 import sqlite3
 import requests
 
-DB_PATH = "/shared_data/signals.db"
-API_URL = "http://ft_bot:8080/api/v1"
+from .constants import API_URL, DB_PATH
 
 
 def _resolve_db_path() -> Path:

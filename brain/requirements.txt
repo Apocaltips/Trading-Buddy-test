@@ -4,3 +4,4 @@ ccxt
 sqlalchemy
 requests
 plotly
+pyyaml

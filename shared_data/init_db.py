@@ -21,6 +21,33 @@ def init_db(db_path: Path) -> None:
             "reason TEXT"
             ")"
         )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS signal_bus ("
+            "id TEXT PRIMARY KEY, "
+            "ts_utc TEXT, "
+            "source TEXT, "
+            "instance TEXT, "
+            "strategy TEXT, "
+            "symbol TEXT, "
+            "pair TEXT, "
+            "side TEXT, "
+            "intent TEXT, "
+            "timeframe TEXT, "
+            "signal_bps REAL, "
+            "price_snapshot REAL, "
+            "ttl_sec INTEGER, "
+            "chart_signal_json TEXT, "
+            "stop_loss REAL, "
+            "take_profit REAL, "
+            "notional_usd REAL, "
+            "qty REAL, "
+            "vol_bps REAL, "
+            "sentiment_score REAL, "
+            "reason TEXT, "
+            "consumed INTEGER DEFAULT 0, "
+            "inserted_at TEXT"
+            ")"
+        )
         conn.commit()
 
 

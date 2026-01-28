@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import List
 
 import ccxt
@@ -22,12 +23,20 @@ def _fallback_ohlcv(limit: int) -> List[List[float]]:
     return rows
 
 
-def fetch_ohlcv(pair: str, exchange_id: str = "binance", timeframe: str = "5m", limit: int = 200) -> pd.DataFrame:
+def fetch_ohlcv(
+    pair: str,
+    exchange_id: str = "kraken",
+    timeframe: str = "5m",
+    limit: int = 200,
+    allow_fallback: bool = True,
+) -> pd.DataFrame:
     exchange_class = getattr(ccxt, exchange_id)
     exchange = exchange_class({"enableRateLimit": True})
     try:
         ohlcv = exchange.fetch_ohlcv(pair, timeframe=timeframe, limit=limit)
     except Exception:
+        if not allow_fallback or os.getenv("DISABLE_OHLCV_FALLBACK") == "1":
+            raise
         ohlcv = _fallback_ohlcv(limit)
 
     df_candles = pd.DataFrame(

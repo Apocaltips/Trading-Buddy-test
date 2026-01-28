@@ -3,6 +3,24 @@ services:
     image: freqtradeorg/freqtrade:stable
     volumes:
       - ./shared_data:/shared_data
+      - ./freqtrade/user_data:/freqtrade/user_data
+    ports:
+      - "8080:8080"
+    command: >
+      trade --config /freqtrade/user_data/config.json --strategy SidecarStrat
+  runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.runner
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - ./shared_data:/shared_data
+    environment:
+      - FT_USERNAME=freqtrade
+      - FT_PASSWORD=changeme
+      - DISABLE_OHLCV_FALLBACK=1
+      - PYTHONPATH=/workspace
   brain:
     image: python:3.11
     volumes:

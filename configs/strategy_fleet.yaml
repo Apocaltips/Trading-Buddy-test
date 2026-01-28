@@ -1,0 +1,33 @@
+rate_limit_per_min: 1200
+instance_cost_per_min: 1
+confluence_min: 70
+pairs:
+  - BTC/USDT
+  - ETH/USDT
+  - SOL/USDT
+  - XRP/USDT
+  - ADA/USDT
+  - DOGE/USDT
+  - AVAX/USDT
+  - LINK/USDT
+strategies:
+  - name: trend_pullback
+    timeframes: ["5m", "15m"]
+  - name: breakout_retest
+    timeframes: ["5m"]
+  - name: range_bounce
+    timeframes: ["15m"]
+  - name: mean_reversion
+    timeframes: ["5m"]
+  - name: vwap_reversion
+    timeframes: ["1m", "5m"]
+  - name: momentum_continuation
+    timeframes: ["5m"]
+  - name: divergence_reversal
+    timeframes: ["15m"]
+  - name: volatility_squeeze
+    timeframes: ["15m"]
+  - name: sr_flip
+    timeframes: ["5m"]
+  - name: channel_bounce
+    timeframes: ["15m"]

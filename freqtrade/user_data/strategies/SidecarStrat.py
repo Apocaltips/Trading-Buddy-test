@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Optional
 
 import sqlite3
@@ -55,7 +55,8 @@ class SidecarStrat(IStrategy):
             conn = sqlite3.connect(DB_PATH)
             cur = conn.cursor()
             cur.execute(
-                "SELECT stop_loss FROM active_signals WHERE pair = ? LIMIT 1",
+                "SELECT stop_loss, ts_utc, ttl_sec "
+                "FROM signal_bus WHERE pair = ? ORDER BY inserted_at DESC LIMIT 1",
                 (pair,),
             )
             row = cur.fetchone()
@@ -69,4 +70,13 @@ class SidecarStrat(IStrategy):
                     pass
         if not row:
             return None
-        return row[0]
+        stop_loss, ts_utc, ttl_sec = row
+        if ts_utc is None or ttl_sec is None:
+            return None
+        try:
+            ts = datetime.fromisoformat(str(ts_utc).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+        if datetime.utcnow().replace(tzinfo=ts.tzinfo) > ts + timedelta(seconds=int(ttl_sec)):
+            return None
+        return stop_loss

@@ -1,0 +1,16 @@
+Dockerfile.runner:6
+
+--------------------
+
+   4 |     
+
+   5 |     COPY brain/requirements.txt /workspace/brain/requirements.txt
+
+   6 | >>> RUN pip install --no-cache-dir -r /workspace/brain/requirements.txt
+
+   7 |     
+
+--------------------
+
+failed to solve: process "/bin/sh -c pip install --no-cache-dir -r /workspace/brain/requirements.txt" did not complete successfully: exit code: 1
+
